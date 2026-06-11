@@ -22,7 +22,7 @@ def render_bi_dashboard(bi_data):
         horizontal_spacing=0.10,
     )
 
-    # ── ROI bars ──
+    # ROI bars
     channels  = list(roi_results.keys())
     roi_vals  = [roi_results[c]['roi_pct'] for c in channels]
     roi_colors = [C['green'] if v == max(roi_vals)
@@ -32,15 +32,15 @@ def render_bi_dashboard(bi_data):
     fig.add_trace(go.Bar(
         x=channels, y=roi_vals,
         marker=dict(color=roi_colors, line=dict(color=C['bg'], width=1)),
-        text=[f'{v:.1f}%' for v in roi_vals],
+        text=['{:.1f}%'.format(v) for v in roi_vals],
         textposition='outside',
         textfont=dict(color=C['text'], size=11),
         showlegend=False,
         hovertemplate='<b>%{x}</b><br>ROI: %{y:.2f}%<extra></extra>',
     ), row=1, col=1)
 
-    # ── Stacked budget bars ──
-    labels = [f'${r["total"]}K' for r in opt_records]
+    # Stacked budget bars
+    labels = ['${}K'.format(r['total']) for r in opt_records]
     for name, key, color in [
         ('TV',        'tv',        C['cyan']),
         ('Radio',     'radio',     C['amber']),
@@ -52,10 +52,10 @@ def render_bi_dashboard(bi_data):
             y=[r[key] for r in opt_records],
             marker=dict(color=color, opacity=0.85,
                         line=dict(color=C['bg'], width=0.5)),
-            hovertemplate=f'<b>{name}</b>: ${{y:.1f}}K<extra></extra>',
+            hovertemplate='<b>' + name + '</b>: %{y:.1f}K<extra></extra>',
         ), row=1, col=2)
 
-    # ── What-if bars ──
+    # What-if bars
     scenarios = [r['scenario'] for r in whatif_records]
     deltas    = [r['delta']    for r in whatif_records]
 
@@ -65,7 +65,7 @@ def render_bi_dashboard(bi_data):
         marker=dict(
             color=[C['green'] if d >= 0 else C['coral'] for d in deltas],
             opacity=0.85, line=dict(color=C['bg'], width=0.5)),
-        text=[f'{d:+.3f}K' for d in deltas],
+        text=['{:+.3f}K'.format(d) for d in deltas],
         textposition='outside',
         textfont=dict(color=C['text'], size=10),
         showlegend=False,
@@ -75,4 +75,18 @@ def render_bi_dashboard(bi_data):
     fig.update_layout(
         paper_bgcolor=C['bg'], plot_bgcolor=C['card'],
         font=dict(color=C['text'], family='Inter, sans-serif', size=12),
-        barmode='stack
+        barmode='stack', height=460,
+        margin=dict(t=70, b=55, l=60, r=40),
+        xaxis2=dict(tickangle=-30, tickfont=dict(color=C['muted'])),
+        xaxis3=dict(title='Sales change ($K)', tickfont=dict(color=C['muted'])),
+        hoverlabel=dict(bgcolor=C['card'], font_color=C['text'],
+                        bordercolor=C['purple']),
+        legend=dict(bgcolor=C['card'], bordercolor=C['purple'],
+                    borderwidth=1, font=dict(color=C['text'])),
+    )
+    for ann in fig['layout']['annotations']:
+        ann['font'] = dict(color=C['muted'], size=11)
+
+    fig.add_vline(x=0, line_dash='dash',
+                  line_color=C['muted'], line_width=1, row=1, col=3)
+    return fig
