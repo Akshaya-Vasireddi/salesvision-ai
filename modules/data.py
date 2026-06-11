@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import os
 
-# Works both in Colab and Streamlit Cloud
+# Get the data folder relative to this file
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(BASE, 'data')
 
